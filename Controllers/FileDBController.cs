@@ -21,21 +21,19 @@ namespace HalogenPreTestAPI.Controllers
     public class FileDBController : ControllerBase
     {
         private readonly FileDBContext _context;
-        List<int> divBy3 = new List<int>();
-        List<int> divBy5 = new List<int>();
-        List<int> divBy7 = new List<int>();
-        List<int> evenNums = new List<int>();
-        List<int> oddNums = new List<int>();
-        int modeOfNums = 0;
+        List<double> divBy3 = new List<double>();
+        List<double> divBy5 = new List<double>();
+        List<double> divBy7 = new List<double>();
+        List<double> evenNums = new List<double>();
+        List<double> oddNums = new List<double>();
+        double modeOfNums = 0;
         double medianOfNums = 0;
         private readonly string AppDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
         private static List<FileData> DbFile = new List<FileData>();
-        // private IWebHostingEnvironment webHostingEnvironment; IWebHostingEnvironment _webHostingEnvironment
 
         public FileDBController(FileDBContext context)
         {
             _context = context;
-            // webHostingEnvironment = _webHostingEnvironment;
         }
 
         [HttpPost("/sendfile")]
@@ -45,18 +43,14 @@ namespace HalogenPreTestAPI.Controllers
         {
             try
             {
-                // return new HttpResponseMessage(HttpStatusCode.OK)
-                // {
-                //     Content = new StringContent("Successful")
-                // };
+
                 FileData file = await SaveFileAsync(model.File2Process);
                 if (!string.IsNullOrEmpty(file.FilePath))
                 {
                     file.Description = model.Description;
                     file.AltText = model.AltText;
                     DbFile.Add(file);
-                    // SaveToDB(file);
-                    Console.WriteLine(file.FileName + "\n" + file.FilePath);
+                    SaveToDB(file);
                     processFileContent();
                     return new HttpResponseMessage(HttpStatusCode.OK)
                     {
@@ -65,7 +59,7 @@ namespace HalogenPreTestAPI.Controllers
                 }
                 else
                 {
-                    // return new List<int> { 0 };
+
                     return new HttpResponseMessage(HttpStatusCode.BadRequest)
                     {
                         Content = new StringContent("Error Occured Here!!!!!!")
@@ -74,7 +68,7 @@ namespace HalogenPreTestAPI.Controllers
             }
             catch (Exception ex)
             {
-                // return new List<int> { 0 };
+
                 return new HttpResponseMessage(HttpStatusCode.InternalServerError)
                 {
                     Content = new StringContent(ex.Message),
@@ -92,20 +86,20 @@ namespace HalogenPreTestAPI.Controllers
             var lookUpFile = Path.Combine(AppDirectory, filePaths[filePaths.Length - 1]);
             if (Path.Exists(lookUpFile))
             {
-                // new FileStream(path, FileMode.Open))
                 using (var reader = new StreamReader(new FileStream(lookUpFile, FileMode.Open)))
                 {
-                    List<int> numbersList = new List<int>();
+                    List<double> numbersList = new List<double>();
                     while (!reader.EndOfStream)
                     {
                         var line = reader.ReadLine();
                         var values = line.Split(',');
-                        var numbaItem = 0;
+                        var numbaItem = 0.0;
                         foreach (var item in values)
                         {
-                            if (Int32.TryParse(item, out numbaItem))
+                            if (Double.TryParse(item, out numbaItem))
                                 numbersList.Add(numbaItem);
                         }
+                        numbersList.Sort();
                         foreach (var numba in numbersList)
                         {
                             if (numba % 3 == 0)
@@ -132,14 +126,10 @@ namespace HalogenPreTestAPI.Controllers
                                         .Skip((numbersList.ToArray().Length - 1) / 2)
                                         .Take(2 - numbersList.ToArray().Length % 2)
                                         .Average();
-                        // var findMode = numbersList.ToLookup(x => x);
-                        // var allModes = findMode.Max(x => x.Count());
-                        // modeOfNums = findMode.Where(x => x.Count() == allModes).Select(x => x.Key).First();
-                        Console.WriteLine($"Numbers div by 3: {string.Join(",", divBy3)}\nNumbers div by 5: {string.Join(",", divBy5)}\nNumbers div by 7: {string.Join(",", divBy7)}");
+
                     }
 
                 }
-                // var reader = new StreamReader(new FileStream(lookUpFile, FileMode.Open));
             }
             return 0;
         }
@@ -184,20 +174,48 @@ namespace HalogenPreTestAPI.Controllers
             _context.SaveChanges();
         }
 
-        // [HttpGet] LATER
-        // public List<FileData> GetAllFiles()
-        // {
 
-        // }
+        [HttpGet("/showfile")]
+        public async Task<IActionResult> ShowUploadedFile()
+        {
+            string[] filePaths = Directory.GetFiles(AppDirectory);
+            var path = "";
+            if (filePaths.Length != 0)
+            {
+                var lookUpFile = filePaths[filePaths.Length - 1];
+                path = Path.Combine(AppDirectory, lookUpFile);
+            }
+            var retData = new Dictionary<string, string>(){
+                {"fileName", Path.GetFileName(path)}
+            };
 
-        /* [HttpGet("/downloadFile/{id}")]
-        public async Task<IActionResult> DownLoadFile(Guid id)
+            return Ok(retData.ToList());
+
+            // if (_context.FileData?.Any() == true)
+            // {
+            // var fileDataItem = _context.FileData.Select(n => new FileData
+            // {
+            //     FileName = n.FileName,
+            //     FileExtention = n.FileExtention,
+            //     FilePath = n.FilePath
+            // }).ToList();
+            // // return Ok(path);
+            // Console.WriteLine(fileDataItem);
+            // // DbFile.Add(fileDataItem);
+            // return fileDataItem;
+            // }
+
+        }
+
+        [HttpGet("/downloadFile")]
+        public async Task<IActionResult> DownLoadFile()
         {
             if (!Directory.Exists(AppDirectory))
                 Directory.CreateDirectory(AppDirectory);
 
-            var file = _context.FileData.Where(n => n.Id == id).FirstOrDefault();
-            var path = Path.Combine(AppDirectory, file?.FilePath);
+            string[] filePaths = Directory.GetFiles(AppDirectory);
+            var lookUpFile = Path.Combine(AppDirectory, filePaths[filePaths.Length - 1]);
+            var path = Path.Combine(AppDirectory, lookUpFile);
 
             var memory = new MemoryStream();
             using (var stream = new FileStream(path, FileMode.Open))
@@ -209,7 +227,7 @@ namespace HalogenPreTestAPI.Controllers
             var fileName = Path.GetFileName(path);
 
             return File(memory, contentType, fileName);
-        } */
+        }
 
         [HttpGet("/processOutput")]
         public async Task<IActionResult> ProcessData()
