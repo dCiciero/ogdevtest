@@ -480,3 +480,4 @@ $RECYCLE.BIN/
 WeatherForecast.cs
 Controllers/FileDBControllerNew.cs
 Controllers/WeatherForecastController.cs
+wwwroot
