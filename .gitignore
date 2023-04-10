@@ -475,3 +475,11 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+
+Controllers/WeatherForecastController.cs
+Controllers/FileDBControllerNew.cs
+
+WeatherForecast.cs
+
+wwwroot/
