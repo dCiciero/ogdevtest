@@ -482,4 +482,4 @@ Controllers/FileDBControllerNew.cs
 
 WeatherForecast.cs
 
-wwwroot/
+wwwroot/*
