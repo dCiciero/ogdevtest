@@ -8,10 +8,13 @@ using System.Web;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using HalogenPreTestAPI.Models;
 using HalogenPreTestAPI.Data;
 using Microsoft.AspNetCore.Cors;
+
 
 namespace HalogenPreTestAPI.Controllers
 {
@@ -47,7 +50,7 @@ namespace HalogenPreTestAPI.Controllers
                 if (!string.IsNullOrEmpty(file.FilePath))
                 {
                     file.Description = model.Description;
-                    file.AltText = model.AltText;
+                    // file.AltText = model.AltText;
                     DbFile.Add(file);
                     SaveToDB(file);
                     processFileContent();
@@ -148,6 +151,7 @@ namespace HalogenPreTestAPI.Controllers
                 file.FileExtention = Path.GetExtension(fileData.FileName);
                 file.DateUploaded = DateTime.Now;
                 file.FileName = Path.GetFileName(fileData.FileName);
+                file.ContentType = fileData.ContentType;
 
                 using (var stream = new FileStream(path, FileMode.Create))
                 {
@@ -167,6 +171,7 @@ namespace HalogenPreTestAPI.Controllers
             fileData.FilePath = record.FilePath;
             fileData.FileName = record.FileName;
             fileData.FileExtention = record.FileExtention;
+            fileData.ContentType = record.ContentType;
 
             _context.FileData.Add(fileData);
             _context.SaveChanges();
@@ -178,13 +183,17 @@ namespace HalogenPreTestAPI.Controllers
         {
             string[] filePaths = Directory.GetFiles(AppDirectory);
             var path = "";
+            string? contentType = "";
             if (filePaths.Length != 0)
             {
                 var lookUpFile = filePaths[filePaths.Length - 1];
                 path = Path.Combine(AppDirectory, lookUpFile);
+
+                new FileExtensionContentTypeProvider().TryGetContentType(path, out contentType);
             }
             var retData = new Dictionary<string, string>(){
-                {"fileName", Path.GetFileName(path)}
+                {"fileName", Path.GetFileName(path)},
+                {"CntentType", contentType}
             };
 
             return Ok(retData.ToList());
@@ -207,7 +216,7 @@ namespace HalogenPreTestAPI.Controllers
                 await stream.CopyToAsync(memory);
             }
             memory.Position = 0;
-            var contentType = "Application/0ctet-stream";
+            var contentType = "Application/octet-stream";
             var fileName = Path.GetFileName(path);
 
             return File(memory, contentType, fileName);

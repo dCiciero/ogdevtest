@@ -1,0 +1,4 @@
+{
+  "appService.defaultWebAppToDeploy": "/subscriptions/1d485256-9265-4947-8bbd-a390643548ef/resourceGroups/OgBostonNig/providers/Microsoft.Web/sites/ogcicero-dev",
+  "appService.deploySubpath": "bin\\Publish"
+}

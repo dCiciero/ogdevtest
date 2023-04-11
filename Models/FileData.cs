@@ -14,5 +14,5 @@ public class FileData
     public string? FilePath { get; set; }
     public DateTime DateUploaded { get; set; }
     public string? Description { get; set; }
-    public string? AltText { get; set; }
+    public string? ContentType { get; set; }
 }
