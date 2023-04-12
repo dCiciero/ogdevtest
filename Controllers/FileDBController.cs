@@ -116,11 +116,16 @@ namespace HalogenPreTestAPI.Controllers
                                 oddNums.Add(numba);
                         }
 
-                        modeOfNums = numbersList
-                                        .GroupBy(x => x)
-                                        .OrderByDescending(x => x.Count())
-                                        .Select(x => x.Key)
-                                        .First();
+
+                        var groups = numbersList.GroupBy(v => v);
+                        int maxCount = groups.Max(g => g.Count());
+                        // System.Console.WriteLine($"Max Count: {maxCount}");
+                        modeOfNums = maxCount > 1 ? groups.First(g => g.Count() == maxCount).Key : 0;
+                        // modeOfNums = numbersList
+                        //                 .GroupBy(x => x)
+                        //                 .OrderByDescending(x => x.Count())
+                        //                 // .Select(x => x.Key)
+                        //                 .First().Key;
 
                         medianOfNums = numbersList
                                         .OrderBy(item => item)
