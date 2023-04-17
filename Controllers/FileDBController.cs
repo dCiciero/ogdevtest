@@ -29,6 +29,7 @@ namespace HalogenPreTestAPI.Controllers
         List<double> divBy7 = new List<double>();
         List<double> evenNums = new List<double>();
         List<double> oddNums = new List<double>();
+        List<double> setsOfNumbasGreaterThan100 = new List<double>();
         double modeOfNums = 0;
         double medianOfNums = 0;
         private readonly string AppDirectory = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
@@ -132,6 +133,23 @@ namespace HalogenPreTestAPI.Controllers
                                         .Skip((numbersList.ToArray().Length - 1) / 2)
                                         .Take(2 - numbersList.ToArray().Length % 2)
                                         .Average();
+
+                        numbersList.Reverse();
+                        var sumGreaterThan100 = 0.0;
+
+                        foreach (var item in numbersList)
+                        {
+                            sumGreaterThan100 += item;
+                            setsOfNumbasGreaterThan100.Add(item);
+                            if (sumGreaterThan100 >= 100)
+                            {
+                                break;
+                            }
+                        }
+                        if (sumGreaterThan100 < 100)
+                        {
+                            setsOfNumbasGreaterThan100.Clear();
+                        }
 
                     }
 
@@ -244,7 +262,8 @@ namespace HalogenPreTestAPI.Controllers
                     EvenNums = evenNums,
                     OddNums = oddNums,
                     Mode = modeOfNums,
-                    Median = medianOfNums
+                    Median = medianOfNums,
+                    SetsOfNumbas100Upwards = setsOfNumbasGreaterThan100
 
                 }
             };

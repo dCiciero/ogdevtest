@@ -14,4 +14,5 @@ public class ObjectModel
     public List<Double>? OddNums { get; set; }
     public double Mode { get; set; }
     public double Median { get; set; }
+    public List<Double>? SetsOfNumbas100Upwards { get; set; }
 }
